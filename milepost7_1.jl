@@ -4,22 +4,31 @@
 # file. PProf has to be installed in the global environment.
 #############################################################################
 
+using Infiltrator
+using KernelAbstractions
 using ProxAL
 # using DelimitedFiles, Printf
 using LinearAlgebra, JuMP, Ipopt
 using CUDA
+using AMDGPU
 using MPI
-using KernelAbstractions
+const KA = KernelAbstractions
 using CUDAKernels
+using ROCKernels
 
 function ProxAL.ExaAdmm.KAArray{T}(n::Int, device::CUDADevice) where {T}
     return CuArray{T}(undef, n)
 end
 
+function ProxAL.ExaAdmm.KAArray{T}(n::Int, device::ROCDevice) where {T}
+    return ROCArray{T}(undef, n)
+end
 MPI.Init()
+@show AMDGPU.devices()
+
 
 case = "case_ACTIVSg10k"
-case = "case9"
+# case = "case9"
 demandfiles = "$(case)"
 # Load case
 const DATA_DIR = "cases"
@@ -29,7 +38,7 @@ load_file = joinpath(DATA_DIR, demandfiles)
 # choose one of the following (K*T subproblems in each case)
 if length(ARGS) == 0
     (T, K) = (16, 32)
-    (T, K) = (2, 1)
+    # (T, K) = (2, 1)
 elseif length(ARGS) == 4
     case = ARGS[1]
     demandfiles = ARGS[2]
@@ -67,11 +76,11 @@ algparams = AlgParams()
 algparams.verbose = 1
 algparams.tol = 1e-3
 algparams.decompCtgs = (K > 0)
-algparams.iterlim = 100
+algparams.iterlim = 500
 if isa(backend, ProxAL.AdmmBackend)
     # algparams.device = ProxAL.CUDADevice
     algparams.device = ProxAL.KADevice
-    algparams.ka_device = CUDADevice()
+    algparams.ka_device = ROCDevice()
 end
 algparams.optimizer = optimizer_with_attributes(Ipopt.Optimizer, "print_level" => 0) #,  "tol" => 1e-1*algparams.tol)
 algparams.tron_rho_pq=3e3
@@ -116,3 +125,14 @@ end
 if !isinteractive()
     MPI.Finalize()
 end
+#   [052768ef] CUDA v3.12.0
+#   [72cfdca4] CUDAKernels v0.4.3
+#   [f67ccb44] HDF5 v0.16.11
+#   [b6b21f68] Ipopt v1.1.0
+#   [4076af6c] JuMP v1.3.0
+#   [63c18a36] KernelAbstractions v0.8.4
+#   [da04e1cc] MPI v0.19.2
+#   [91a5bcdd] Plots v1.34.1
+#   [12c3852d] ProxAL v0.6.0 `/disk/mschanen/julia_depot/dev/ProxAL`
+#   [7eb9e9f0] ROCKernels v0.3.2
+#   [8bb1440f] DelimitedFiles

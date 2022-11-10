@@ -21,7 +21,7 @@ load_file = joinpath(DATA_DIR, demandfiles)
 
 # choose one of the following (K*T subproblems in each case)
 if length(ARGS) == 0
-    (T, K) = (4, 2)
+    (T, K) = (16, 32)
 elseif length(ARGS) == 4
     case = ARGS[1]
     demandfiles = ARGS[2]
@@ -61,7 +61,7 @@ algparams.tol = 1e-3
 algparams.decompCtgs = (K > 0)
 algparams.iterlim = 10000
 if isa(backend, ProxAL.AdmmBackend)
-    algparams.device = ProxAL.CUDADevice
+    algparams.device = ProxAL.ROCDevice
 end
 algparams.optimizer = optimizer_with_attributes(Ipopt.Optimizer, "print_level" => 0) #,  "tol" => 1e-1*algparams.tol)
 algparams.tron_rho_pq=3e3
