@@ -12,7 +12,7 @@ using MPI
 
 MPI.Init()
 
-case = "case_ACTIVSg10k"
+case = "case118"
 demandfiles = "$(case)"
 # Load case
 const DATA_DIR = "cases"
@@ -59,9 +59,17 @@ algparams = AlgParams()
 algparams.verbose = 1
 algparams.tol = 1e-3
 algparams.decompCtgs = (K > 0)
-algparams.iterlim = 10000
+algparams.iterlim = 100
 if isa(backend, ProxAL.AdmmBackend)
-    algparams.device = ProxAL.CUDADevice
+    using CUDAKernels
+    algparams.device = ProxAL.KADevice
+    algparams.ka_device = CUDADevice()
+    function ProxAL.ExaAdmm.KAArray{T}(n::Int, device::CUDADevice) where {T}
+        return CuArray{T}(undef, n)
+    end
+    function ProxAL.ExaAdmm.KAArray{T}(n1::Int, n2::Int, device::CUDADevice) where {T}
+        return CuArray{T}(undef, n1, n2)
+    end
 end
 algparams.optimizer = optimizer_with_attributes(Ipopt.Optimizer, "print_level" => 0) #,  "tol" => 1e-1*algparams.tol)
 algparams.tron_rho_pq=3e3
