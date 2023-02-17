@@ -9,6 +9,8 @@ using ProxAL
 using LinearAlgebra, JuMP, Ipopt
 using CUDA
 using MPI
+using CUDAKernels
+using ROCKernels
 
 MPI.Init()
 
@@ -59,18 +61,37 @@ algparams = AlgParams()
 algparams.verbose = 1
 algparams.tol = 1e-3
 algparams.decompCtgs = (K > 0)
-algparams.iterlim = 100
-if isa(backend, ProxAL.AdmmBackend)
-    using CUDAKernels
-    algparams.device = ProxAL.KADevice
-    algparams.ka_device = CUDADevice()
+algparams.iterlim = 10
+# if isa(backend, ProxAL.AdmmBackend)
+#     using CUDAKernels
+#     algparams.device = ProxAL.KADevice
+#     algparams.ka_device = CUDADevice()
+#     function ProxAL.ExaAdmm.KAArray{T}(n::Int, device::CUDADevice) where {T}
+#         return CuArray{T}(undef, n)
+#     end
+#     function ProxAL.ExaAdmm.KAArray{T}(n1::Int, n2::Int, device::CUDADevice) where {T}
+#         return CuArray{T}(undef, n1, n2)
+#     end
+# end
+algparams.device = ProxAL.GPU
+if CUDA.has_cuda_gpu()
     function ProxAL.ExaAdmm.KAArray{T}(n::Int, device::CUDADevice) where {T}
         return CuArray{T}(undef, n)
     end
     function ProxAL.ExaAdmm.KAArray{T}(n1::Int, n2::Int, device::CUDADevice) where {T}
         return CuArray{T}(undef, n1, n2)
     end
+    gpu_device = CUDADevice()
+elseif AMDGPU.has_rocm_gpu()
+    function ProxAL.ExaAdmm.KAArray{T}(n::Int, device::ROCDevice) where {T}
+        return ROCArray{T}(undef, n)
+    end
+    function ProxAL.ExaAdmm.KAArray{T}(n1::Int, n2::Int, device::ROCDevice) where {T}
+        return ROCArray{T}(undef, n1, n2)
+    end
+    gpu_device = ROCDevice()
 end
+using CUDAKernels
 algparams.optimizer = optimizer_with_attributes(Ipopt.Optimizer, "print_level" => 0) #,  "tol" => 1e-1*algparams.tol)
 algparams.tron_rho_pq=3e3
 algparams.tron_rho_pa=3e4
@@ -78,7 +99,7 @@ algparams.tron_outer_iterlim=8
 algparams.tron_inner_iterlim=250
 algparams.mode = :coldstart
 algparams.init_opf = false
-algparams.tron_outer_eps = Inf
+# algparams.tron_outer_eps = Inf
 
 
 ranks = MPI.Comm_size(MPI.COMM_WORLD)
@@ -103,11 +124,13 @@ if MPI.Comm_rank(MPI.COMM_WORLD) == 0
     println("Creating problem: $elapsed_t")
     println("Benchmark Start")
     np = MPI.Comm_size(MPI.COMM_WORLD)
+    info = ProxAL.optimize!(nlp)
     elapsed_t = @elapsed begin
         info = ProxAL.optimize!(nlp)
     end
     println("AugLag iterations: $(info.iter) with $np ranks in $elapsed_t seconds")
 else
+    info = ProxAL.optimize!(nlp)
     info = ProxAL.optimize!(nlp)
 end
 
