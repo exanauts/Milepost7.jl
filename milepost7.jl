@@ -73,7 +73,7 @@ algparams.iterlim = 10
 #         return CuArray{T}(undef, n1, n2)
 #     end
 # end
-algparams.device = ProxAL.GPU
+algparams.device = ProxAL.KADevice
 if CUDA.has_cuda_gpu()
     function ProxAL.ExaAdmm.KAArray{T}(n::Int, device::CUDADevice) where {T}
         return CuArray{T}(undef, n)
@@ -92,6 +92,7 @@ elseif AMDGPU.has_rocm_gpu()
     gpu_device = ROCDevice()
 end
 using CUDAKernels
+algparams.ka_device = gpu_device
 algparams.optimizer = optimizer_with_attributes(Ipopt.Optimizer, "print_level" => 0) #,  "tol" => 1e-1*algparams.tol)
 algparams.tron_rho_pq=3e3
 algparams.tron_rho_pa=3e4
