@@ -8,13 +8,16 @@ using ProxAL
 # using DelimitedFiles, Printf
 using LinearAlgebra, JuMP, Ipopt
 using CUDA
+# using AMDGPU
+# using oneAPI
 using MPI
 using CUDAKernels
 using ROCKernels
 
 MPI.Init()
 
-case = "case118"
+# case = "case118"
+case = "case_ACTIVSg2000"
 demandfiles = "$(case)"
 # Load case
 const DATA_DIR = "cases"
@@ -96,8 +99,10 @@ algparams.ka_device = gpu_device
 algparams.optimizer = optimizer_with_attributes(Ipopt.Optimizer, "print_level" => 0) #,  "tol" => 1e-1*algparams.tol)
 algparams.tron_rho_pq=3e3
 algparams.tron_rho_pa=3e4
-algparams.tron_outer_iterlim=8
-algparams.tron_inner_iterlim=250
+algparams.tron_outer_iterlim=1
+algparams.tron_inner_iterlim=100
+# algparams.tron_outer_iterlim=8
+# algparams.tron_inner_iterlim=250
 algparams.mode = :coldstart
 algparams.init_opf = false
 # algparams.tron_outer_eps = Inf
