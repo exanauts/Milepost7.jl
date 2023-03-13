@@ -17,16 +17,17 @@ using ROCKernels
 MPI.Init()
 
 # case = "case118"
-case = "case_ACTIVSg2000"
+case = "case_ACTIVSg2000_2"
 demandfiles = "$(case)"
 # Load case
-const DATA_DIR = "cases"
+const DATA_DIR = "cases/n-2"
 case_file = joinpath(DATA_DIR, "$(case).m")
 load_file = joinpath(DATA_DIR, demandfiles)
+CUDA.device!(1)
 
 # choose one of the following (K*T subproblems in each case)
 if length(ARGS) == 0
-    (T, K) = (4, 2)
+    (T, K) = (2, 10)
 elseif length(ARGS) == 4
     case = ARGS[1]
     demandfiles = ARGS[2]
@@ -64,7 +65,7 @@ algparams = AlgParams()
 algparams.verbose = 1
 algparams.tol = 1e-3
 algparams.decompCtgs = (K > 0)
-algparams.iterlim = 10
+algparams.iterlim = 100
 # if isa(backend, ProxAL.AdmmBackend)
 #     using CUDAKernels
 #     algparams.device = ProxAL.KADevice
@@ -130,13 +131,13 @@ if MPI.Comm_rank(MPI.COMM_WORLD) == 0
     println("Creating problem: $elapsed_t")
     println("Benchmark Start")
     np = MPI.Comm_size(MPI.COMM_WORLD)
-    info = ProxAL.optimize!(nlp)
+    # info = ProxAL.optimize!(nlp)
     elapsed_t = @elapsed begin
         info = ProxAL.optimize!(nlp)
     end
     println("AugLag iterations: $(info.iter) with $np ranks in $elapsed_t seconds")
 else
-    info = ProxAL.optimize!(nlp)
+    # info = ProxAL.optimize!(nlp)
     info = ProxAL.optimize!(nlp)
 end
 
