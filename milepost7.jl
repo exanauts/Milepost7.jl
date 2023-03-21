@@ -23,11 +23,11 @@ demandfiles = "$(case)"
 const DATA_DIR = "cases/n-2"
 case_file = joinpath(DATA_DIR, "$(case).m")
 load_file = joinpath(DATA_DIR, demandfiles)
-CUDA.device!(1)
+# CUDA.device!(1)
 
 # choose one of the following (K*T subproblems in each case)
 if length(ARGS) == 0
-    (T, K) = (2, 10)
+    (T, K) = (4, 159)
 elseif length(ARGS) == 4
     case = ARGS[1]
     demandfiles = ARGS[2]
@@ -101,7 +101,7 @@ algparams.optimizer = optimizer_with_attributes(Ipopt.Optimizer, "print_level" =
 algparams.tron_rho_pq=3e3
 algparams.tron_rho_pa=3e4
 algparams.tron_outer_iterlim=1
-algparams.tron_inner_iterlim=100
+algparams.tron_inner_iterlim=400
 # algparams.tron_outer_iterlim=8
 # algparams.tron_inner_iterlim=250
 algparams.mode = :coldstart
