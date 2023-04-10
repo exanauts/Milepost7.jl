@@ -29,9 +29,9 @@ load_file = joinpath(DATA_DIR, demandfiles)
 
 # choose one of the following (K*T subproblems in each case)
 if length(ARGS) == 0
-    (T, K) = (4, 1599)
+    # (T, K) = (4, 1599)
     # (T, K) = (4, 159)
-    # (T, K) = (1, 10)
+    (T, K) = (1, 9)
 elseif length(ARGS) == 4
     case = ARGS[1]
     demandfiles = ARGS[2]
@@ -116,6 +116,8 @@ algparams.init_opf = false
 ranks = MPI.Comm_size(MPI.COMM_WORLD)
 if MPI.Comm_rank(MPI.COMM_WORLD) == 0
     println("ProxAL/ExaTron $ranks ranks, $T periods, $K contingencies")
+    println("Case: $case")
+    println("tron_inner_iterlim: $(algparams.tron_inner_iterlim)")
 end
 # cur_logger = global_logger(NullLogger())
 elapsed_t = @elapsed begin
