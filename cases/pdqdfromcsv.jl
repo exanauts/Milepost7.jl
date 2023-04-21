@@ -99,5 +99,9 @@ end
 
 if !isinteractive()
     args = parse_cmd()
+    case = args["case"]
+    pdload = args["Pd"]
+    qdload = args["Qd"]
+    toplot = args["plot"]
     main(case, pdload, qdload; toplot=toplot)
 end
