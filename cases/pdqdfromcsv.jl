@@ -61,16 +61,18 @@ function main(casefile::String, ploadfile::String, qloadfile::String; toplot=fal
     timestep = Minute((secondperiod - firstperiod))
     sum_pd = sum(out_pd_loads, dims=1)
     sum_qd = sum(out_qd_loads, dims=1)
-    loadplot = plot(
-        sum_pd[1,:],
-        label="Pd",
-        title="Load profile $case\n$(input_pd[2,1])-$(input_pd[end,1])\n Timestep: $timestep",
-        titlefontsize=10,
-        xlabel="Period",
-        ylabel="Load (MW)",
-    )
-    plot!(loadplot, sum_qd[1,:], label="Qd")
-    savefig(loadplot, "$case.png")
+    if toplot
+        loadplot = plot(
+            sum_pd[1,:],
+            label="Pd",
+            title="Load profile $case\n$(input_pd[2,1])-$(input_pd[end,1])\n Timestep: $timestep",
+            titlefontsize=10,
+            xlabel="Period",
+            ylabel="Load (MW)",
+        )
+        plot!(loadplot, sum_qd[1,:], label="Qd")
+        savefig(loadplot, "$case.png")
+    end
 end
 
 function parse_cmd()
