@@ -1,6 +1,6 @@
 using ArgParse
 using CUDA
-CUDA.device!(1)
+# CUDA.device!(1)
 # using DelimitedFiles, Printf
 using LinearAlgebra, JuMP, Ipopt
 using AMDGPU
@@ -8,16 +8,17 @@ using AMDGPU
 using MPI
 using ProxAL
 using Test
+using Milepost7
 
-include("../milepost7.jl")
-
-case = "cases/case118.m"
-load = "cases/case118"
+case = "../cases/case118.m"
+load = "../cases/case118"
 T = 2
 K = 1
 rhopq = 3e3
 rhova = 3e4
 proxal_iter = 2
+
+MPI.Init()
 
 @testset "Testing Milepost 7" begin
     maxviol_t = 0.0
@@ -26,7 +27,7 @@ proxal_iter = 2
     maxviol_c_actual = 0.0
     maxviol_d = 0.0
     @testset "Testing on CPU" begin
-        info = main(case, load, T, K, 2; profile=false, rhopq=rhopq, rhova=rhova, proxal_iter=proxal_iter)
+        info = milepost7(case, load, T, K, 2; profile=false, rhopq=rhopq, rhova=rhova, proxal_iter=proxal_iter)
 
         @test isapprox(info.maxviol_t[end], 2.4908e-01; atol=1e-5)
         @test isapprox(info.maxviol_t_actual[end], 2.4908e-01; atol=1e-5)
@@ -40,7 +41,7 @@ proxal_iter = 2
         maxviol_d = info.maxviol_d[end]
     end
     @testset "Testing on CUDA" begin
-        info = main(case, load, T, K, 3; profile=false, rhopq=rhopq, rhova=rhova, proxal_iter=proxal_iter)
+        info = milepost7(case, load, T, K, 3; profile=false, rhopq=rhopq, rhova=rhova, proxal_iter=proxal_iter)
 
         @test isapprox(info.maxviol_t[end], maxviol_t)
         @test isapprox(info.maxviol_t_actual[end], maxviol_t_actual)
@@ -49,7 +50,7 @@ proxal_iter = 2
         @test isapprox(info.maxviol_d[end], maxviol_d)
     end
     @testset "Testing on KA" begin
-        info = main(case, load, T, K, 4; profile=false, rhopq=rhopq, rhova=rhova, proxal_iter=proxal_iter)
+        info = milepost7(case, load, T, K, 4; profile=false, rhopq=rhopq, rhova=rhova, proxal_iter=proxal_iter)
 
         @test isapprox(info.maxviol_t[end], maxviol_t)
         @test isapprox(info.maxviol_t_actual[end], maxviol_t_actual)
