@@ -1,4 +1,7 @@
 # Milepost 7
+
+[![][build-stable-img]][build-url]
+
 Milepost 7 is an application of the ECP ExaSGD project to solve multiperiod security-constrained optimal power flow (MPSCOPF) at a large-scale on GPU
 architectures.
 
@@ -44,3 +47,8 @@ optional arguments:
   --plot      Create a plot of the load
   -h, --help  show this help message and exit
 ```
+## Funding
+This research was supported by the Exascale Computing Project (17-SC-20-SC), a joint project of the U.S. Department of Energy’s Office of Science and National Nuclear Security Administration, responsible for delivering a capable exascale ecosystem, including software, applications, and hardware technology, to support the nation’s exascale computing imperative.
+
+[build-url]: https://github.com/exanauts/Milepost7.jl/actions?query=workflow
+[build-stable-img]: https://github.com/exanauts/Milepost7.jl/workflows/CI/badge.svg?branch=main
