@@ -6,6 +6,7 @@ MPI.Init()
 if !isinteractive()
     args = parse_cmd()
     profile = args["profile"]
+    output = args["output"]
     case = args["case"]
     load = args["load"]
     T = args["T"]
@@ -21,6 +22,7 @@ else
     case = "cases/case9.m"
     load = "cases/case9"
     profile = true
+    output = true
     T = 2
     K = 1
     rhopq = 3e3
@@ -34,6 +36,7 @@ end
 info = milepost7(
     case, load, T, K, configuration;
     profile=profile,
+    output=output,
     rhopq=rhopq, rhova=rhova,
     proxal_iter=proxal_iter,
     exatron_inner_iter=exatron_inner_iter,
