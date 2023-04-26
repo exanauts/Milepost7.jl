@@ -7,7 +7,6 @@
 module Milepost7
 using ArgParse
 using CUDA
-# CUDA.device!(1)
 # using DelimitedFiles, Printf
 using LinearAlgebra, JuMP, Ipopt
 using AMDGPU
@@ -40,6 +39,7 @@ function milepost7(
     K::Int64,
     configuration::Int64;
     profile=false,
+    output=false,
     rhopq=3e3,
     rhova=3e4,
     proxal_iter=100,
@@ -127,7 +127,7 @@ elapsed_t = @elapsed begin
         modelinfo,
         algparams,
         backend;
-        output=true
+        output=output
     )
     # end
 end
@@ -168,6 +168,9 @@ function parse_cmd()
     @add_arg_table! s begin
         "--profile"
             help = "Create a plot of the load"
+            action = :store_true
+        "--output"
+            help = "Write output using HDF5.jl and MPI if available"
             action = :store_true
         "case"
             help = "Case file"
