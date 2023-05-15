@@ -1,7 +1,20 @@
+using AMDGPU
 using Milepost7
 using MPI
+using Logging
+
 
 MPI.Init()
+
+if MPI.Comm_rank(MPI.COMM_WORLD) != 0
+    disable_logging(Info)
+    disable_logging(Warn)
+else
+    if AMDGPU.has_rocm_gpu()
+        @show AMDGPU.libhsaruntime_path
+        @show AMDGPU.use_artifacts
+    end
+end
 
 if !isinteractive()
     args = parse_cmd()

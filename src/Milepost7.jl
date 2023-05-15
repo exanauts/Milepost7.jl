@@ -18,20 +18,6 @@ using ProxAL
 
 export milepost7, parse_cmd
 
-function ProxAL.ExaAdmm.KAArray{T}(n::Int, device::CUDABackend) where {T}
-    return CuArray{T}(undef, n)
-end
-function ProxAL.ExaAdmm.KAArray{T}(n1::Int, n2::Int, device::CUDABackend) where {T}
-    return CuArray{T}(undef, n1, n2)
-end
-
-function ProxAL.ExaAdmm.KAArray{T}(n::Int, device::ROCBackend) where {T}
-    return ROCArray{T}(undef, n)
-end
-function ProxAL.ExaAdmm.KAArray{T}(n1::Int, n2::Int, device::ROCBackend) where {T}
-    return ROCArray{T}(undef, n1, n2)
-end
-
 function milepost7(
     case::String,
     demandfiles::String,
@@ -74,6 +60,7 @@ algparams.verbose = 1
 algparams.tol = 1e-3
 algparams.decompCtgs = (K > 0)
 algparams.iterlim = proxal_iter
+algparams.verbose_inner = 0
 
 # choose backend
 if configuration == 1
