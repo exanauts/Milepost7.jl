@@ -40,14 +40,16 @@ MPI.Init()
         maxviol_c_actual = info.maxviol_c_actual[end]
         maxviol_d = info.maxviol_d[end]
     end
-    @testset "Testing on CUDA" begin
-        info = milepost7(case, load, T, K, 3; profile=false, rhopq=rhopq, rhova=rhova, proxal_iter=proxal_iter)
+    if CUDA.has_cuda_gpu()
+        @testset "Testing on CUDA" begin
+            info = milepost7(case, load, T, K, 3; profile=false, rhopq=rhopq, rhova=rhova, proxal_iter=proxal_iter)
 
-        @test isapprox(info.maxviol_t[end], maxviol_t)
-        @test isapprox(info.maxviol_t_actual[end], maxviol_t_actual)
-        @test isapprox(info.maxviol_c[end], maxviol_c)
-        @test isapprox(info.maxviol_c_actual[end], maxviol_c_actual)
-        @test isapprox(info.maxviol_d[end], maxviol_d)
+            @test isapprox(info.maxviol_t[end], maxviol_t)
+            @test isapprox(info.maxviol_t_actual[end], maxviol_t_actual)
+            @test isapprox(info.maxviol_c[end], maxviol_c)
+            @test isapprox(info.maxviol_c_actual[end], maxviol_c_actual)
+            @test isapprox(info.maxviol_d[end], maxviol_d)
+        end
     end
     @testset "Testing on KA" begin
         info = milepost7(case, load, T, K, 4; profile=false, rhopq=rhopq, rhova=rhova, proxal_iter=proxal_iter)
