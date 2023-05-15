@@ -51,9 +51,11 @@ function main(casefile::String, ploadfile::String, qloadfile::String; toplot=fal
 
     pname, ext = splitext(ploadfile)
     qname, ext = splitext(qloadfile)
+    out_pd_loads .= 1.5 .* out_pd_loads
+    out_qd_loads .= 1.5 .* out_qd_loads
 
-    DelimitedFiles.writedlm("$pname.Pd", out_pd_loads, ' ')
-    DelimitedFiles.writedlm("$qname.Qd", out_pd_loads, ' ')
+    DelimitedFiles.writedlm("$pname.Pd", out_pd_loads, '\t')
+    DelimitedFiles.writedlm("$qname.Qd", out_qd_loads, '\t')
 
     firstperiod = Time(input_qd[2,1], "yyyy-mm-dd HH:MM:SS")
     secondperiod = Time(input_qd[3,1], "yyyy-mm-dd HH:MM:SS")

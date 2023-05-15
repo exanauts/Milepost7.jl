@@ -1,7 +1,20 @@
 using Milepost7
 using MPI
+using CUDA
+using Logging
+using Profile
+using PProf
 
 MPI.Init()
+rank = MPI.Comm_rank(MPI.COMM_WORLD)
+np = MPI.Comm_size(MPI.COMM_WORLD)
+
+if rank % 2 == 0
+    CUDA.device!(1)
+end
+Logging.global_logger(ConsoleLogger(stderr, Logging.Error))
+Profile.init(n=10^7, delay=0.01)
+
 
 if !isinteractive()
     args = parse_cmd()
