@@ -16,7 +16,7 @@ else
     end
 end
 
-if !isinteractive()
+if !isinteractive() && length(ARGS) != 0
     args = parse_cmd()
     profile = args["profile"]
     output = args["output"]
@@ -31,10 +31,9 @@ if !isinteractive()
     exatron_inner_iter = args["exatron_inner_iter"]
     exatron_outer_iter = args["exatron_outer_iter"]
 else
-    # case = "cases/case_ACTIVSg10k.m"
-    case = "cases/case9.m"
-    load = "cases/case9"
-    profile = true
+    case = "/lustre/orion/csc359/scratch/mschanen/git/milepost7/cases/case_ACTIVSg10k.m"
+    load = "/lustre/orion/csc359/scratch/mschanen/git/milepost7/cases/case_ACTIVSg10k"
+    profile = false
     output = true
     T = 2
     K = 1

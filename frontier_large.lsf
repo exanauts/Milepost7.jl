@@ -1,0 +1,37 @@
+#!/bin/bash
+#SBATCH -A CSC359
+#SBATCH -J milepost7
+#SBATCH -t 1:00:00
+#SBATCH -p batch
+#SBATCH -N 1000
+#SBATCH -C nvme
+#SBATCH --mail-type=END
+#SBATCH --mail-user=michel.schanen@gmail.com
+NVME_PATH=/mnt/bb/$USER
+date
+module unload xalt
+module load hdf5
+module load rocm/5.4.0
+export OMP_NUM_THREADS=1
+export PROJECT_PATH=$PWD
+echo "*****ldd ./${exe}*****"
+ldd ./copy
+echo "*************************"
+echo "Copying executable copy"
+sbcast --send-libs -pf copy $NVME_PATH/copy
+if [ ! "$?" == "0" ]; then
+    # CHECK EXIT CODE. When SBCAST fails, it may leave partial files on the compute nodes, and if you continue to launch srun,
+    # your application may pick up partially complete shared library files, which would give you confusing errors.
+    echo "SBCAST failed!"
+    exit 1
+fi
+ls -lh $NVME_PATH
+ls -lh $NVME_PATH/copy_libs
+export LD_LIBRARY_PATH="/mnt/bb/$USER/copy_libs:${LD_LIBRARY_PATH}"
+echo "Copying data"
+srun -n1000 --ntasks-per-node=1 --gpus-per-node=1 --gpu-bind=closest $NVME_PATH/copy 10
+echo "Start run"
+export JULIA_BIN="$NVME_PATH/Milepost7Compiled/bin/Milepost7"
+date
+srun -n8000 --ntasks-per-node=8 --gpus-per-node=8 --gpu-bind=closest $JULIA_BIN $NVME_PATH/cases/case_ACTIVSg10k.m $NVME_PATH/cases/case_ACTIVSg10k 10 799 --configuration 4 --proxal_iter 1000 --rhopq 3e3 --rhova 3e4 --exatron_inner_iter 400 --exatron_outer_iter 1 --output
+date
